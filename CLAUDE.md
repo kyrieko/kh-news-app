@@ -20,19 +20,19 @@ npx drizzle-kit studio     # Drizzle Studio (DB GUI) 실행
 `.env.local` 파일에 아래 변수가 필요합니다:
 
 ```
-DATABASE_URL=          # Supabase PostgreSQL 연결 문자열
+DATABASE_URL=          # Neon PostgreSQL 연결 문자열 (neon.tech 콘솔에서 확인)
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
 CLERK_SECRET_KEY=
 ```
 
 ## 아키텍처 개요
 
-Next.js 16 App Router 기반 뉴스 애그리게이터. 인증은 Clerk, DB는 Supabase(PostgreSQL), ORM은 Drizzle.
+Next.js 16 App Router 기반 뉴스 애그리게이터. 인증은 Clerk, DB는 Neon(PostgreSQL 서버리스), ORM은 Drizzle.
 
 ### 데이터 흐름
 
 ```
-클라이언트 → Clerk 미들웨어(src/middleware.ts) → Next.js API Route → Drizzle ORM → Supabase
+클라이언트 → Clerk 미들웨어(src/middleware.ts) → Next.js API Route → Drizzle ORM → Neon(PostgreSQL)
 ```
 
 모든 요청은 `src/middleware.ts`의 `clerkMiddleware()`를 통과한다. `/api/bookmarks`는 인증 필수(`auth()`로 `userId` 확인), 나머지 API는 공개 접근 가능.
@@ -52,7 +52,7 @@ sources ──< articles >──< article_categories >── categories
 - `article_categories`: 기사-카테고리 다대다 조인 테이블
 - `user_bookmarks`: Clerk userId + articleId로 북마크 관리
 
-DB 클라이언트(`src/db/index.ts`)는 서버리스 환경을 위해 `max: 1` 연결 설정.
+DB 클라이언트(`src/db/index.ts`)는 `@neondatabase/serverless`의 Neon HTTP 드라이버를 사용한다. WebSocket이 아닌 HTTP 기반이라 서버리스/엣지 환경에 적합하다.
 
 ### API 엔드포인트
 
@@ -69,6 +69,20 @@ DB 클라이언트(`src/db/index.ts`)는 서버리스 환경을 위해 `max: 1` 
 | POST | `/api/bookmarks` | 북마크 추가 (인증 필요) |
 | DELETE | `/api/bookmarks?articleId=` | 북마크 삭제 (인증 필요) |
 
+### Neon 데이터베이스
+
+- 드라이버: `drizzle-orm/neon-http` + `@neondatabase/serverless`
+- 연결: `DATABASE_URL` 환경변수 (Neon 콘솔 → 프로젝트 → Connection string)
+- MCP: `mcp__neon__*` 툴로 DB 조작 가능 (쿼리 실행, 브랜치 관리 등)
+
 ### 스키마 변경 시 주의
 
-Drizzle 스키마(`src/db/schema.ts`)를 수정한 후 반드시 마이그레이션 파일을 생성하고 적용해야 한다. Supabase MCP가 연결된 경우 `mcp__supabase__apply_migration`으로 직접 적용 가능.
+Drizzle 스키마(`src/db/schema.ts`)를 수정한 후 반드시 마이그레이션 파일을 생성하고 적용해야 한다. Neon MCP가 연결된 경우 `mcp__neon__run_sql`로 직접 SQL 실행 가능.
+
+## 코드 작성 전 필수 참조
+
+코드를 작성하기 전에 반드시 `docs/` 디렉토리의 관련 파일을 먼저 읽고, 기존 패턴과 규칙, 모범 사례를 파악한 뒤 그에 맞게 구현한다.
+
+| 파일 | 내용 |
+|------|------|
+| `docs/ui.md` | UI 컴포넌트 규칙 (shadcn UI 전용, 커스텀 컴포넌트 금지) |

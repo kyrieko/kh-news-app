@@ -2,6 +2,11 @@ import { db } from '@/db';
 import { articles, articleCategories, categories, sources } from '@/db/schema';
 import { eq, desc, inArray, asc, count } from 'drizzle-orm';
 import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { CrawlButton } from '@/components/crawl-button';
 
 const PAGE_SIZE = 5;
 
@@ -113,37 +118,42 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const totalPages = Math.ceil(total / PAGE_SIZE);
   const selectedCategory = categoryList.find((c) => c.slug === categorySlug);
 
+  // 페이지 번호 목록 계산 (ellipsis 포함)
+  const pageItems = Array.from({ length: totalPages }, (_, i) => i + 1)
+    .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
+    .reduce<(number | 'ellipsis')[]>((acc, p, idx, arr) => {
+      if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('ellipsis');
+      acc.push(p);
+      return acc;
+    }, []);
+
   return (
     <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-950">
       {/* 왼쪽 사이드바 - 카테고리 */}
       <aside className="w-56 shrink-0 border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
         <div className="sticky top-0 p-4">
-          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
             주제
-          </h2>
+          </p>
           <nav className="flex flex-col gap-1">
-            <Link
-              href="/dashboard"
-              className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                !categorySlug
-                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900'
-                  : 'text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'
-              }`}
+            <Button
+              asChild
+              variant={!categorySlug ? 'default' : 'ghost'}
+              size="sm"
+              className="justify-start"
             >
-              전체
-            </Link>
+              <Link href="/dashboard">전체</Link>
+            </Button>
             {categoryList.map((cat) => (
-              <Link
+              <Button
                 key={cat.id}
-                href={`/dashboard?category=${cat.slug}`}
-                className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                  categorySlug === cat.slug
-                    ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900'
-                    : 'text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'
-                }`}
+                asChild
+                variant={categorySlug === cat.slug ? 'default' : 'ghost'}
+                size="sm"
+                className="justify-start"
               >
-                {cat.label}
-              </Link>
+                <Link href={`/dashboard?category=${cat.slug}`}>{cat.label}</Link>
+              </Button>
             ))}
           </nav>
         </div>
@@ -152,14 +162,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       {/* 오른쪽 메인 콘텐츠 */}
       <main className="flex-1 px-8 py-6">
         {/* 헤더 */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-            {selectedCategory ? selectedCategory.label : '전체 뉴스'}
-          </h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            총 {total}개의 기사
-          </p>
+        <div className="mb-2 flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+              {selectedCategory ? selectedCategory.label : '전체 뉴스'}
+            </h1>
+            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+              총 {total}개의 기사
+            </p>
+          </div>
+          <CrawlButton />
         </div>
+
+        <Separator className="mb-6" />
 
         {/* 기사 목록 */}
         {articleList.length === 0 ? (
@@ -169,33 +184,31 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         ) : (
           <div className="flex flex-col gap-4">
             {articleList.map((article) => (
-              <article
-                key={article.id}
-                className="rounded-lg border border-zinc-200 bg-white p-5 transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900"
-              >
-                <div className="mb-2 flex items-center gap-2">
-                  <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                    {article.sourceName}
-                  </span>
-                  <span className="text-xs text-zinc-300 dark:text-zinc-600">·</span>
-                  <time className="text-xs text-zinc-400 dark:text-zinc-500">
-                    {formatDate(article.publishedAt)}
-                  </time>
-                </div>
-                <h2 className="mb-2 text-base font-semibold leading-snug text-zinc-900 dark:text-zinc-50">
-                  <a
-                    href={article.sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:underline"
-                  >
-                    {article.title}
-                  </a>
-                </h2>
-                <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-                  {article.summary}
-                </p>
-              </article>
+              <Card key={article.id} className="transition-shadow hover:shadow-md">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary">{article.sourceName}</Badge>
+                    <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                      {formatDate(article.publishedAt)}
+                    </span>
+                  </div>
+                  <h2 className="text-base font-semibold leading-snug text-zinc-900 dark:text-zinc-50">
+                    <a
+                      href={article.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline"
+                    >
+                      {article.title}
+                    </a>
+                  </h2>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                    {article.summary}
+                  </p>
+                </CardContent>
+              </Card>
             ))}
           </div>
         )}
@@ -204,60 +217,33 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         {totalPages > 1 && (
           <div className="mt-8 flex items-center justify-center gap-1">
             {/* 이전 버튼 */}
-            {currentPage > 1 ? (
-              <Link
-                href={buildUrl(currentPage - 1, categorySlug)}
-                className="rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-              >
-                ← 이전
-              </Link>
-            ) : (
-              <span className="rounded-md px-3 py-2 text-sm font-medium text-zinc-300 dark:text-zinc-600">
-                ← 이전
-              </span>
-            )}
+            <Button asChild variant="outline" size="sm" disabled={currentPage <= 1}>
+              <Link href={buildUrl(currentPage - 1, categorySlug)}>← 이전</Link>
+            </Button>
 
             {/* 페이지 번호 */}
-            {Array.from({ length: totalPages }, (_, i) => i + 1)
-              .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
-              .reduce<(number | 'ellipsis')[]>((acc, p, idx, arr) => {
-                if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('ellipsis');
-                acc.push(p);
-                return acc;
-              }, [])
-              .map((item, idx) =>
-                item === 'ellipsis' ? (
-                  <span key={`ellipsis-${idx}`} className="px-2 py-2 text-sm text-zinc-400">
-                    …
-                  </span>
-                ) : (
-                  <Link
-                    key={item}
-                    href={buildUrl(item, categorySlug)}
-                    className={`min-w-[36px] rounded-md px-3 py-2 text-center text-sm font-medium transition-colors ${
-                      item === currentPage
-                        ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900'
-                        : 'text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'
-                    }`}
-                  >
-                    {item}
-                  </Link>
-                )
-              )}
+            {pageItems.map((item, idx) =>
+              item === 'ellipsis' ? (
+                <span key={`ellipsis-${idx}`} className="px-2 text-sm text-zinc-400">
+                  …
+                </span>
+              ) : (
+                <Button
+                  key={item}
+                  asChild
+                  variant={item === currentPage ? 'default' : 'outline'}
+                  size="sm"
+                  className="min-w-[36px]"
+                >
+                  <Link href={buildUrl(item, categorySlug)}>{item}</Link>
+                </Button>
+              )
+            )}
 
             {/* 다음 버튼 */}
-            {currentPage < totalPages ? (
-              <Link
-                href={buildUrl(currentPage + 1, categorySlug)}
-                className="rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-              >
-                다음 →
-              </Link>
-            ) : (
-              <span className="rounded-md px-3 py-2 text-sm font-medium text-zinc-300 dark:text-zinc-600">
-                다음 →
-              </span>
-            )}
+            <Button asChild variant="outline" size="sm" disabled={currentPage >= totalPages}>
+              <Link href={buildUrl(currentPage + 1, categorySlug)}>다음 →</Link>
+            </Button>
           </div>
         )}
       </main>

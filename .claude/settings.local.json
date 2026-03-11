@@ -19,7 +19,19 @@
       "mcp__supabase__get_project_url",
       "mcp__neon__list_projects",
       "mcp__neon__run_sql_transaction",
-      "mcp__neon__run_sql"
+      "mcp__neon__run_sql",
+      "Bash(npx shadcn@latest init --yes --defaults 2>&1 | tail -20)",
+      "Bash(npx shadcn@latest add badge card button separator --yes 2>&1 | tail -20)",
+      "Bash(npx shadcn@latest add avatar skeleton --yes 2>&1 | tail -10)",
+      "Bash(npx tsc:*)",
+      "Bash(find /d/news-app -name \"*.sql\" -o -name \"*seed*\" 2>/dev/null | head -20)",
+      "Bash(grep -r \"slug\" /d/news-app/src --include=\"*.ts\" --include=\"*.tsx\" 2>/dev/null | head -20)",
+      "Bash(git log:*)",
+      "Bash(find /d/news-app -type f \\\\\\( -name \"*.sql\" -o -name \"*.json\" -o -name \"*.yaml\" -o -name \"*.yml\" \\\\\\) 2>/dev/null | head -30)",
+      "WebFetch(domain:rss.news.naver.com)",
+      "WebFetch(domain:news.naver.com)",
+      "Bash(cd \"D:/news-app\" && npx tsx src/scripts/clear-db.ts)",
+      "Bash(cd \"D:/news-app\" && npx tsx src/scripts/check-db.ts)"
     ]
   },
   "enabledMcpjsonServers": [
