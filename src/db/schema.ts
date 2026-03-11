@@ -6,7 +6,7 @@ export const sources = pgTable('sources', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: text('name').notNull().unique(),
   websiteUrl: text('website_url'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
   index('sources_name_idx').on(t.name),
 ]);
@@ -16,7 +16,7 @@ export const categories = pgTable('categories', {
   id: uuid('id').primaryKey().defaultRandom(),
   slug: text('slug').notNull().unique(),
   label: text('label').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
   index('categories_slug_idx').on(t.slug),
 ]);
@@ -27,12 +27,12 @@ export const articles = pgTable('articles', {
   title: text('title').notNull(),
   summary: text('summary').notNull(),
   sourceUrl: text('source_url').notNull().unique(),
-  publishedAt: timestamp('published_at').notNull(),
+  publishedAt: timestamp('published_at', { withTimezone: true }).notNull(),
   sourceId: uuid('source_id')
     .notNull()
     .references(() => sources.id, { onDelete: 'restrict' }),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
   index('articles_published_at_idx').on(t.publishedAt),
   index('articles_source_id_idx').on(t.sourceId),
@@ -58,7 +58,7 @@ export const userBookmarks = pgTable('user_bookmarks', {
   articleId: uuid('article_id')
     .notNull()
     .references(() => articles.id, { onDelete: 'cascade' }),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
   index('user_bookmarks_clerk_user_id_idx').on(t.clerkUserId),
   index('user_bookmarks_article_id_idx').on(t.articleId),
