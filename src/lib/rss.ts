@@ -17,38 +17,38 @@ export interface RssFeedConfig {
   websiteUrl?: string;
 }
 
-// 카테고리별 RSS 피드 목록 (구글 뉴스 한국어)
+// 카테고리별 RSS 피드 목록 (연합뉴스)
 // categorySlug는 DB categories.slug 값과 일치해야 함
 export const RSS_FEEDS: RssFeedConfig[] = [
   {
-    url: 'https://news.google.com/rss/search?q=한국+정치&hl=ko&gl=KR&ceid=KR:ko',
-    sourceName: '구글 뉴스 - 정치',
+    url: 'https://www.yna.co.kr/rss/politics.xml',
+    sourceName: '연합뉴스',
     categorySlug: 'politics',
-    websiteUrl: 'https://news.google.com',
+    websiteUrl: 'https://www.yna.co.kr',
   },
   {
-    url: 'https://news.google.com/rss/search?q=한국+경제&hl=ko&gl=KR&ceid=KR:ko',
-    sourceName: '구글 뉴스 - 경제',
+    url: 'https://www.yna.co.kr/rss/economy.xml',
+    sourceName: '연합뉴스',
     categorySlug: 'economy',
-    websiteUrl: 'https://news.google.com',
+    websiteUrl: 'https://www.yna.co.kr',
   },
   {
-    url: 'https://news.google.com/rss/search?q=한국+사회&hl=ko&gl=KR&ceid=KR:ko',
-    sourceName: '구글 뉴스 - 사회',
+    url: 'https://www.yna.co.kr/rss/society.xml',
+    sourceName: '연합뉴스',
     categorySlug: 'society',
-    websiteUrl: 'https://news.google.com',
+    websiteUrl: 'https://www.yna.co.kr',
   },
   {
-    url: 'https://news.google.com/rss/search?q=세계+국제뉴스&hl=ko&gl=KR&ceid=KR:ko',
-    sourceName: '구글 뉴스 - 국제',
+    url: 'https://www.yna.co.kr/rss/international.xml',
+    sourceName: '연합뉴스',
     categorySlug: 'international',
-    websiteUrl: 'https://news.google.com',
+    websiteUrl: 'https://www.yna.co.kr',
   },
   {
-    url: 'https://news.google.com/rss/search?q=한국+IT+기술&hl=ko&gl=KR&ceid=KR:ko',
-    sourceName: '구글 뉴스 - 기술',
+    url: 'https://www.yna.co.kr/rss/industry.xml',
+    sourceName: '연합뉴스',
     categorySlug: 'tech',
-    websiteUrl: 'https://news.google.com',
+    websiteUrl: 'https://www.yna.co.kr',
   },
 ];
 
