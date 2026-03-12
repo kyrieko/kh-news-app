@@ -31,7 +31,12 @@
       "WebFetch(domain:rss.news.naver.com)",
       "WebFetch(domain:news.naver.com)",
       "Bash(cd \"D:/news-app\" && npx tsx src/scripts/clear-db.ts)",
-      "Bash(cd \"D:/news-app\" && npx tsx src/scripts/check-db.ts)"
+      "Bash(cd \"D:/news-app\" && npx tsx src/scripts/check-db.ts)",
+      "Bash(npm install:*)",
+      "Bash(mkdir -p \"D:\\\\news-app\\\\src\\\\app\\\\api\\\\articles\\\\[id]\\\\content\" && mkdir -p \"D:\\\\news-app\\\\src\\\\app\\\\dashboard\\\\articles\\\\[id]\")",
+      "Bash(npm run:*)",
+      "Bash(cd D:/news-app && ls .env*)",
+      "Bash(cd D:/news-app && npx tsx -e \"\nimport { db } from './src/db/index.ts';\nimport { articles } from './src/db/schema.ts';\nimport { desc } from 'drizzle-orm';\nconst rows = await db.select\\({ id: articles.id, url: articles.sourceUrl }\\).from\\(articles\\).orderBy\\(desc\\(articles.publishedAt\\)\\).limit\\(3\\);\nconsole.log\\(JSON.stringify\\(rows, null, 2\\)\\);\n\" 2>&1)"
     ]
   },
   "enabledMcpjsonServers": [

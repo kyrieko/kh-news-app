@@ -182,9 +182,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             기사가 없습니다.
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {articleList.map((article) => (
-              <Card key={article.id} className="transition-shadow hover:shadow-md">
+              <Card key={article.id} className="flex flex-col transition-shadow hover:shadow-md">
                 <CardHeader className="pb-2">
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary">{article.sourceName}</Badge>
@@ -192,7 +192,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                       {formatDate(article.publishedAt)}
                     </span>
                   </div>
-                  <h2 className="text-base font-semibold leading-snug text-zinc-900 dark:text-zinc-50">
+                  <h2 className="line-clamp-2 text-base font-semibold leading-snug text-zinc-900 dark:text-zinc-50">
                     <a
                       href={article.sourceUrl}
                       target="_blank"
@@ -203,10 +203,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                     </a>
                   </h2>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-                    {article.summary}
-                  </p>
+                <CardContent className="flex-1">
+                  <Link href={`/dashboard/articles/${article.id}`}>
+                    <p className="line-clamp-3 cursor-pointer text-sm leading-relaxed text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
+                      {article.summary}
+                    </p>
+                  </Link>
                 </CardContent>
               </Card>
             ))}
